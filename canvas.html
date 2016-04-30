@@ -20,16 +20,29 @@
 
   var WIDTH_MAX = 500;
   var HEIGHT_MAX = 300;
-  var CHANCE_OF_MUTATION = 0.1;
-  var CHANCE_OF_BABY = 1.5;
+  var CHANCE_OF_MUTATION = 0.0081;
+  var CHANCE_OF_BABY = 0.65;
   var LIFE = 5;
-  var TIMEOUT = 50;
+  var TIMEOUT = 0;
+  var START_X = 250;
+  var START_Y = 150;
 
   var totalCellsCreated = 0;
 
   var globalPixel = context.createImageData(1, 1);
   var data = globalPixel.data;
   data[3] = 256;
+
+  var shuffleArray = function(a) {
+    // stolen from: http://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array-in-javascript
+    var j, x, i;
+    for (i = a.length; i; i -= 1) {
+        j = Math.floor(Math.random() * i);
+        x = a[i - 1];
+        a[i - 1] = a[j];
+        a[j] = x;
+    }
+  }
 
   function drawDeadCell(cell) { 
     data[0] = cell.red;
@@ -61,8 +74,8 @@
       red: 128,
       green: 128,
       blue: 128,
-      x: 250,
-      y: 150,
+      x: START_X,
+      y: START_Y,
       life: LIFE 
   }];
   var presenceTable = [];
@@ -96,8 +109,8 @@
   }
 
   function havingBabyAt(x, y) {
-    return x > 0 && x < WIDTH_MAX && 
-           y > 0 && y < HEIGHT_MAX && 
+    return x >= 0 && x < WIDTH_MAX && 
+           y >= 0 && y < HEIGHT_MAX && 
            isNothingInPresenceTable(x, y) &&
            (cells.length == 0 || CHANCE_OF_BABY > Math.random());
   }
@@ -122,22 +135,39 @@
   }
 
   function makeBabies(cell) {
+    var directions = [];
     var babies = [];
-    // East
-    if (havingBabyAt(cell.x + 1, cell.y)) {
-      babies.push(makeBabyAt(cell, cell.x + 1, cell.y));
-    }
-    // West
-    if (havingBabyAt(cell.x - 1, cell.y)) {
-      babies.push(makeBabyAt(cell, cell.x - 1, cell.y));
-    }
-    // South
-    if (havingBabyAt(cell.x, cell.y + 1)) {
-      babies.push(makeBabyAt(cell, cell.x, cell.y + 1));
-    }
-    // North
-    if (havingBabyAt(cell.x, cell.y - 1)) {
-      babies.push(makeBabyAt(cell, cell.x, cell.y - 1));
+
+    directions.push(function() {
+      // East
+      if (havingBabyAt(cell.x + 1, cell.y)) {
+        babies.push(makeBabyAt(cell, cell.x + 1, cell.y));
+      }
+    });
+    directions.push(function() {
+      // West
+      if (havingBabyAt(cell.x - 1, cell.y)) {
+        babies.push(makeBabyAt(cell, cell.x - 1, cell.y));
+      }
+    });
+    directions.push(function() {
+      // South
+      if (havingBabyAt(cell.x, cell.y + 1)) {
+        babies.push(makeBabyAt(cell, cell.x, cell.y + 1));
+      }
+    });
+    directions.push(function() {
+      // North
+      if (havingBabyAt(cell.x, cell.y - 1)) {
+        babies.push(makeBabyAt(cell, cell.x, cell.y - 1));
+      }
+    });
+
+    shuffleArray(directions);
+
+    for (var i in directions) {
+      var directionFunction = directions[i];
+      directionFunction();
     }
 
     return babies;
