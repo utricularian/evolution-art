@@ -44,18 +44,33 @@
   var CHANCE_OF_LIFE_MUTATION = 0.3;
   var DEFAULT_LIFE = 35;
   var TIMEOUT = 0;
-  var START_X = 250;
-  var START_Y = 150;
+  var START_X = 450;
+  var START_Y = 250;
 
   var START_RED = getNewColor();
   var START_GREEN = getNewColor();
   var START_BLUE = getNewColor();
+
+  var BACKGROUND_COLOR = [255, 255, 255];
 
   var totalCellsCreated = 0;
 
   var globalPixel = context.createImageData(1, 1);
   var data = globalPixel.data;
   data[3] = 256;
+
+  var paintBackground = function(color) {
+    data[0] = color[0];
+    data[1] = color[1];
+    data[2] = color[2];
+
+    for (var x = 0; x < WIDTH_MAX; x++) {
+      for (var y = 0; y < HEIGHT_MAX; y++) {
+        context.putImageData(globalPixel, x, y);
+      }
+    } 
+  }
+  paintBackground(BACKGROUND_COLOR);
 
   var shuffleArray = function(a) {
     // stolen from: http://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array-in-javascript
