@@ -2,6 +2,7 @@
 <body>
 <canvas id='myCanvas' width='900' height='500' style='border: 1px solid #000000;'>
 </canvas>
+<div><a id='downloadLink' download='random.jpg'>Download as image</a></div>
 <br/><br/>
 <div>Number of cells rendered: <span id='totalCellCount'>1</span></div>
 <div>Number of active cells: <span id='cellCount'>1</span></div>
@@ -18,6 +19,14 @@
 <br/>
 <div>Timeout: <span id='timeout'></span></div>
 </body>
+<script type='text/javascript'>
+  function download() {
+    var canvas = document.getElementById('myCanvas');
+    var dt = canvas.toDataURL('image/jpeg');
+    this.href = dt;
+  }
+  downloadLink.addEventListener('click', download, false);
+</script>
 <script type='text/javascript'>
   var canvas = document.getElementById('myCanvas');
   var context = canvas.getContext('2d');
