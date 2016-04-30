@@ -3,7 +3,8 @@
 <canvas id='myCanvas' width='500' height='300' style='border: 1px solid #000000;'>
 </canvas>
 <br/><br/>
-<div id='cellCount'>1</div>
+<div>Number of cells rendered: <span id='totalCellCount'>1</span></div>
+<div>Number of active cells: <span id='cellCount'>1</span></div>
 <div>Reproduction Rate: <span id='reproductionRate'></span></div>
 <div>Mutation Rate: <span id='mutationRate'></span></div>
 <div>Lifespan: <span id='lifespan'></span></div>
@@ -19,6 +20,8 @@
   var CHANCE_OF_MUTATION = 0.01;
   var CHANCE_OF_BABY = 1.0;
   var LIFE = 5;
+
+  var totalCellsCreated = 0;
 
   var globalPixel = context.createImageData(1, 1);
   var data = globalPixel.data;
@@ -57,6 +60,7 @@
   var presenceTable = [];
   
   function addToPresenceTable(cell) {
+    totalCellsCreated++;
     var row = presenceTable[cell.x];
     if (row === undefined) {
       presenceTable[cell.x] = [];
@@ -124,7 +128,7 @@
 
   function killCell(cell) {
     drawDeadCell(cell);
-    cells.shift();
+    return cells.shift();
   }
 
   function blinkCell(cell) {
@@ -138,34 +142,52 @@
     document.getElementById('lifespan').innerHTML = LIFE;
   }
 
-  function oneTick() {
+  function updateDynamicStats() {
     var cellCount = document.getElementById('cellCount');
-    cellCount.innerHTML = cells.length;
-    console.log('Managing ' + cells.length + ' cells.');
-    
+    cellCount.innerHTML = cells.length > 0 ? cells.length : '0 - Permadeath';
+    var totalCellsCount = document.getElementById('totalCellCount');
+    totalCellsCount.innerHTML = totalCellsCreated;
+  }
+
+  window.stop = function() {
+    window.stop = true;
+  }
+
+  window.tick = function() {
+    window.stop = false;
+    oneTick(false);
+  }
+
+  function oneTick(run) {
+    if (run === undefined) {
+      run = true;
+    }
     for (var i in cells) {
       if (window.stop == true) {
         console.log('Found hard stop');
-        return;
+        window.cells = cells;
+        window.presenceTable = presenceTable;
+        return false;
       }
       var cell = cells[i];
+      console.log('cell.life=' + cell.life);
 
       if (cell.life > 0) {
         blinkCell(cell);
       }
       else {
-        killCell(cell);
-        makeBabies(cell);
+        var deadCell = killCell(cell);
+        makeBabies(deadCell);
       }
     }
 
-    if (cells.length > 0) {
-      window.setTimeout(oneTick, 500);
+    if (run && cells.length > 0) {
+      window.setTimeout(oneTick, 1000);
     }
-    else {
+    else if (run) {
       console.log('Permadeath');
-      cellCount.innerHTML = '0 - Permadeath';
     }
+    updateDynamicStats();
   }
 
   updateStaticStats();
