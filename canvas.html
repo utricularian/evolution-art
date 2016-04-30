@@ -5,9 +5,12 @@
 <br/><br/>
 <div>Number of cells rendered: <span id='totalCellCount'>1</span></div>
 <div>Number of active cells: <span id='cellCount'>1</span></div>
+<br/>
 <div>Reproduction Rate: <span id='reproductionRate'></span></div>
 <div>Mutation Rate: <span id='mutationRate'></span></div>
 <div>Lifespan: <span id='lifespan'></span></div>
+<br/>
+<div>Timeout: <span id='timeout'></span></div>
 </body>
 <script type='text/javascript'>
   var canvas = document.getElementById('myCanvas');
@@ -70,7 +73,7 @@
     if (row === undefined) {
       presenceTable[cell.x] = [];
     } 
-    presenceTable[cell.x][cell.y] = cell;
+    presenceTable[cell.x][cell.y] = true;
   }
 
   function removeFromPresenceTable(cell) {
@@ -153,6 +156,7 @@
     document.getElementById('reproductionRate').innerHTML = CHANCE_OF_BABY;
     document.getElementById('mutationRate').innerHTML = CHANCE_OF_MUTATION;
     document.getElementById('lifespan').innerHTML = LIFE;
+    document.getElementById('timeout').innerHTML = TIMEOUT;
   }
 
   function updateDynamicStats() {
