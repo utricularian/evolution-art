@@ -33,23 +33,35 @@
 
   window.stop = false;
 
-  var getNewColor = function() {
-    return Math.floor(Math.random() * 1000000 % 128);
-  };
-
   var WIDTH_MAX = 900;
   var HEIGHT_MAX = 500;
+
   var CHANCE_OF_MUTATION = 0.01;
-  var CHANCE_OF_BABY = 0.7;
+  var COLOR_VARIATION = 7;
+
   var CHANCE_OF_LIFE_MUTATION = 0.3;
   var DEFAULT_LIFE = 35;
+
+  var CHANCE_OF_BABY = 0.75;
+
   var TIMEOUT = 0;
   var START_X = 450;
   var START_Y = 250;
 
-  var START_RED = getNewColor();
-  var START_GREEN = getNewColor();
-  var START_BLUE = getNewColor();
+  var getNewColor = function(oldColor) {
+    if (oldColor) {
+      var minValue = oldColor - COLOR_VARIATION;
+      var change = Math.round(Math.random() * 1000) % COLOR_VARIATION * 2;
+      return minValue + change;
+    }
+    else {
+      return Math.floor(Math.random() * 1000000 % 128);
+    }
+  };
+
+  var START_RED = 201;//getNewColor();
+  var START_GREEN = 161;//getNewColor();
+  var START_BLUE = 174;//getNewColor();
 
   var BACKGROUND_COLOR = [255, 255, 255];
 
@@ -141,7 +153,7 @@
 
   function cloneColorWithPossibilityOfMutation(colorValue) { 
     if (CHANCE_OF_MUTATION > Math.random()) {
-      return getNewColor();
+      return getNewColor(colorValue);
     }
     else {
       return colorValue;
