@@ -6,6 +6,12 @@
 <div>Number of cells rendered: <span id='totalCellCount'>1</span></div>
 <div>Number of active cells: <span id='cellCount'>1</span></div>
 <br/>
+<div>
+  Starting Color: (<span id='startingRed'></span>, 
+  <span id='startingGreen'></span>, 
+  <span id='startingBlue'></span>)
+</div>
+<br/>
 <div>Reproduction Rate: <span id='reproductionRate'></span></div>
 <div>Mutation Rate: <span id='mutationRate'></span></div>
 <div>Lifespan: <span id='lifespan'></span></div>
@@ -18,14 +24,22 @@
 
   window.stop = false;
 
+  var getNewColor = function() {
+    return Math.floor(Math.random() * 1000000 % 128);
+  };
+
   var WIDTH_MAX = 500;
   var HEIGHT_MAX = 300;
   var CHANCE_OF_MUTATION = 0.0081;
-  var CHANCE_OF_BABY = 0.65;
+  var CHANCE_OF_BABY = 0.52;
   var LIFE = 5;
   var TIMEOUT = 0;
   var START_X = 250;
   var START_Y = 150;
+
+  var START_RED = getNewColor();
+  var START_GREEN = getNewColor();
+  var START_BLUE = getNewColor();
 
   var totalCellsCreated = 0;
 
@@ -71,9 +85,9 @@
   }
 
   var cells = [{
-      red: 128,
-      green: 128,
-      blue: 128,
+      red: getNewColor(),
+      green: getNewColor(),
+      blue: getNewColor(),
       x: START_X,
       y: START_Y,
       life: LIFE 
@@ -101,7 +115,7 @@
 
   function cloneColorWithPossibilityOfMutation(colorValue) { 
     if (CHANCE_OF_MUTATION > Math.random()) {
-      return Math.floor(Math.random() * 1000000 % 128);
+      return getNewColor();
     }
     else {
       return colorValue;
@@ -182,11 +196,19 @@
     cell.life--;
   }
 
+  var setInnerText = function(id, value) {
+    document.getElementById(id).innerHTML = value;
+  };
+
   function updateStaticStats() {
-    document.getElementById('reproductionRate').innerHTML = CHANCE_OF_BABY;
-    document.getElementById('mutationRate').innerHTML = CHANCE_OF_MUTATION;
-    document.getElementById('lifespan').innerHTML = LIFE;
-    document.getElementById('timeout').innerHTML = TIMEOUT;
+    setInnerText('reproductionRate', CHANCE_OF_BABY);
+    setInnerText('mutationRate', CHANCE_OF_MUTATION);
+    setInnerText('lifespan', LIFE);
+    setInnerText('timeout', TIMEOUT);
+
+    setInnerText('startingRed', START_RED);    
+    setInnerText('startingGreen', START_GREEN);    
+    setInnerText('startingBlue', START_BLUE);    
   }
 
   function updateDynamicStats() {
