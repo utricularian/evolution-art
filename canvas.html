@@ -30,12 +30,12 @@
 
   var WIDTH_MAX = 500;
   var HEIGHT_MAX = 300;
-  var CHANCE_OF_MUTATION = 0.0081;
-  var CHANCE_OF_BABY = 0.52;
+  var CHANCE_OF_MUTATION = 0.01;
+  var CHANCE_OF_BABY = 1.0;
   var LIFE = 5;
   var TIMEOUT = 0;
-  var START_X = 250;
-  var START_Y = 150;
+  var START_X = 0;
+  var START_Y = 0;
 
   var START_RED = getNewColor();
   var START_GREEN = getNewColor();
@@ -238,7 +238,7 @@
     }
 
     var newCellsForTheTick = [];
-    var deadCellsForTheTick = 0;
+    var indicesOfDeadCells = [];
 
     for (var i in cells) {
       if (window.stop == true) {
@@ -254,16 +254,23 @@
       }
       else {
         killCell(cell);
-        deadCellsForTheTick++;
+        indicesOfDeadCells.push(i);
         var newBabies = makeBabies(cell);
         newCellsForTheTick.push.apply(newCellsForTheTick, newBabies);
       }
     }
 
-    cells.push.apply(cells, newCellsForTheTick);
-    for (var i = 0; i < deadCellsForTheTick; i++) {
-      cells.shift();
+    function sortNumber(a, b) {
+      return b - a;
     }
+    indicesOfDeadCells.sort(sortNumber);
+
+    for (var i in indicesOfDeadCells) {
+      var indexOfDeadCell = indicesOfDeadCells[i];
+      cells.splice(indexOfDeadCell, 1);
+    }
+
+    cells.push.apply(cells, newCellsForTheTick);
 
     if (run && cells.length > 0) {
       window.setTimeout(oneTick, TIMEOUT);
