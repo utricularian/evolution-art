@@ -39,11 +39,15 @@
 
   function drawLivingCell(cell) {
     if (cell.life % 2 == 0) {
-      data[0] = data[1] = data[2] = 0;
+      data[0] = 0;
+      data[1] = 0;
+      data[2] = 0;
       data[3] = 256;
     }
     else {
-      data[0] = data[1] = data[2] = 256;
+      data[0] = 256;
+      data[1] = 256;
+      data[2] = 256;
       data[3] = 0;
     }
 
@@ -121,13 +125,13 @@
       babies.push(makeBabyAt(cell, cell.x + 1, cell.y));
     }
     // West
-    /*if (havingBabyAt(cell.x - 1, cell.y)) {
+    if (havingBabyAt(cell.x - 1, cell.y)) {
       babies.push(makeBabyAt(cell, cell.x - 1, cell.y));
-    }*/
+    }
     // South
-    /*if (havingBabyAt(cell.x, cell.y + 1)) {
+    if (havingBabyAt(cell.x, cell.y + 1)) {
       babies.push(makeBabyAt(cell, cell.x, cell.y + 1));
-    }*/
+    }
     // North
     if (havingBabyAt(cell.x, cell.y - 1)) {
       babies.push(makeBabyAt(cell, cell.x, cell.y - 1));
@@ -138,7 +142,6 @@
 
   function killCell(cell) {
     drawDeadCell(cell);
-    return cells.shift();
   }
 
   function blinkCell(cell) {
@@ -179,6 +182,8 @@
     }
 
     var newCellsForTheTick = [];
+    var deadCellsForTheTick = 0;
+
     for (var i in cells) {
       if (window.stop == true) {
         console.log('Found hard stop');
@@ -192,13 +197,17 @@
         blinkCell(cell);
       }
       else {
-        var deadCell = killCell(cell);
-        var newBabies = makeBabies(deadCell);
+        killCell(cell);
+        deadCellsForTheTick++;
+        var newBabies = makeBabies(cell);
         newCellsForTheTick.push.apply(newCellsForTheTick, newBabies);
       }
     }
 
     cells.push.apply(cells, newCellsForTheTick);
+    for (var i = 0; i < deadCellsForTheTick; i++) {
+      cells.shift();
+    }
 
     if (run && cells.length > 0) {
       window.setTimeout(oneTick, TIMEOUT);
