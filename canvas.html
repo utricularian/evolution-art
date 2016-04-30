@@ -36,6 +36,9 @@
   var WIDTH_MAX = 900;
   var HEIGHT_MAX = 500;
 
+  var MIN_STARTING = 1;
+  var MAX_STARTING = 5;
+
   var CHANCE_OF_MUTATION = 0.01;
   var COLOR_VARIATION = 7;
 
@@ -149,7 +152,8 @@
     };
   };
 
-  var startingCells = Math.ceil(Math.random() * 5);
+  var range = MAX_STARTING - MIN_STARTING + 1;
+  var startingCells = Math.ceil(Math.random() * range) + MIN_STARTING - 1;
   for (var i = 0; i < startingCells; i++) {
     var coords = getRandomCoords();
     var cell = {
