@@ -121,17 +121,9 @@
     context.putImageData(globalPixel, cell.x, cell.y);
   }
 
-  var cells = [{
-      red: getNewColor(),
-      green: getNewColor(),
-      blue: getNewColor(),
-      x: START_X,
-      y: START_Y,
-      startingLife: DEFAULT_LIFE,
-      life: DEFAULT_LIFE 
-  }];
+  var cells = [];
   var presenceTable = [];
-  
+
   function addToPresenceTable(cell) {
     totalCellsCreated++;
     var row = presenceTable[cell.x];
@@ -149,7 +141,28 @@
     return presenceTable[x] === undefined || presenceTable[x][y] === undefined;
   }
 
-  addToPresenceTable(cells[0]);
+  var getRandomCoords = function() {
+    return {
+      x: Math.floor(Math.random() * WIDTH_MAX),
+      y: Math.floor(Math.random() * HEIGHT_MAX)
+    };
+  };
+
+  var startingCells = Math.ceil(Math.random() * 5);
+  for (var i = 0; i < startingCells; i++) {
+    var coords = getRandomCoords();
+    var cell = {
+      red: START_RED,
+      green: START_GREEN,
+      blue: START_BLUE,
+      x: coords.x,
+      y: coords.y,
+      startingLife: DEFAULT_LIFE,
+      life: DEFAULT_LIFE 
+    };
+    cells.push(cell);
+    addToPresenceTable(cell);
+  }
 
   function cloneColorWithPossibilityOfMutation(colorValue) { 
     if (CHANCE_OF_MUTATION > Math.random()) {
