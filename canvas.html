@@ -31,11 +31,11 @@
   var WIDTH_MAX = 500;
   var HEIGHT_MAX = 300;
   var CHANCE_OF_MUTATION = 0.01;
-  var CHANCE_OF_BABY = 1.0;
-  var LIFE = 5;
+  var CHANCE_OF_BABY = 0.5;
+  var LIFE = 1;
   var TIMEOUT = 0;
-  var START_X = 0;
-  var START_Y = 0;
+  var START_X = 250;
+  var START_Y = 150;
 
   var START_RED = getNewColor();
   var START_GREEN = getNewColor();
@@ -240,6 +240,7 @@
     var newCellsForTheTick = [];
     var indicesOfDeadCells = [];
 
+    shuffleArray(cells);
     for (var i in cells) {
       if (window.stop == true) {
         console.log('Found hard stop');
