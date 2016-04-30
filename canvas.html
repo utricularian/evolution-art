@@ -37,7 +37,7 @@
   var HEIGHT_MAX = 500;
 
   var MIN_STARTING = 1;
-  var MAX_STARTING = 5;
+  var MAX_STARTING = 1;
 
   var CHANCE_OF_MUTATION = 0.01;
   var COLOR_VARIATION = 7;
@@ -45,7 +45,11 @@
   var CHANCE_OF_LIFE_MUTATION = 0.3;
   var DEFAULT_LIFE = 35;
 
-  var CHANCE_OF_BABY = 0.55;
+  var DEFAULT_DECAY = 5000;
+
+  var CHANCE_OF_BABY = 0.51;
+
+  var CHANCE_OF_SPONTANEOUS_LIFE = 0.002;
 
   var TIMEOUT = 0;
   var START_X = 450;
@@ -60,6 +64,11 @@
     else {
       return Math.floor(Math.random() * 1000000 % 128);
     }
+  };
+
+  window.pixelAt = function(x, y) {
+    var imgd = context.getImageData(x, y, 1, 1);
+    return imgd.data;
   };
 
   var START_RGB = [150,46,80];
@@ -109,20 +118,7 @@
   }
 
   function drawLivingCell(cell) {
-    if (cell.life % 2 == 0) {
-      data[0] = 0;
-      data[1] = 0;
-      data[2] = 0;
-      data[3] = 256;
-    }
-    else {
-      data[0] = 256;
-      data[1] = 256;
-      data[2] = 256;
-      data[3] = 0;
-    }
-
-    context.putImageData(globalPixel, cell.x, cell.y);
+    drawDeadCell(cell);
   }
 
   var cells = [];
@@ -134,7 +130,7 @@
     if (row === undefined) {
       presenceTable[cell.x] = [];
     } 
-    presenceTable[cell.x][cell.y] = true;
+    presenceTable[cell.x][cell.y] = DEFAULT_DECAY;
   }
 
   function removeFromPresenceTable(cell) {
@@ -144,6 +140,24 @@
   function isNothingInPresenceTable(x, y) {
     return presenceTable[x] === undefined || presenceTable[x][y] === undefined;
   }
+
+  var createStartingCell = function() {
+    var coords = getRandomCoords();
+
+    var pixelAtCoords = window.pixelAt(coords.x, coords.y);
+    var cell = {
+      red: pixelAtCoords[0] === BACKGROUND_COLOR[0] ? START_RED : pixelAtCoords[0],
+      green: pixelAtCoords[1] === BACKGROUND_COLOR[1] ? START_GREEN : pixelAtCoords[1],
+      blue: pixelAtCoords[2] === BACKGROUND_COLOR[2] ? START_BLUE : pixelAtCoords[2],
+      x: coords.x,
+      y: coords.y,
+      startingLife: DEFAULT_LIFE,
+      life: DEFAULT_LIFE 
+    };
+
+    cells.push(cell);
+    addToPresenceTable(cell);
+  };
 
   var getRandomCoords = function() {
     return {
@@ -155,18 +169,7 @@
   var range = MAX_STARTING - MIN_STARTING + 1;
   var startingCells = Math.ceil(Math.random() * range) + MIN_STARTING - 1;
   for (var i = 0; i < startingCells; i++) {
-    var coords = getRandomCoords();
-    var cell = {
-      red: START_RED,
-      green: START_GREEN,
-      blue: START_BLUE,
-      x: coords.x,
-      y: coords.y,
-      startingLife: DEFAULT_LIFE,
-      life: DEFAULT_LIFE 
-    };
-    cells.push(cell);
-    addToPresenceTable(cell);
+    createStartingCell();
   }
 
   function cloneColorWithPossibilityOfMutation(colorValue) { 
@@ -297,10 +300,12 @@
     oneTick(false);
   };
 
-  window.pixelAt = function(x, y) {
-    var imgd = context.getImageData(x, y, 1, 1);
-    return imgd.data;
-  };
+  window.start = function() {
+    if (window.stop) { 
+      window.stop = false;
+      oneTick(true);
+    }
+  } 
 
   function oneTick(run) {
     if (run === undefined) {
@@ -343,6 +348,23 @@
 
     cells.push.apply(cells, newCellsForTheTick);
 
+    for (var xIndex in presenceTable) {
+      var ys = presenceTable[xIndex];
+      for (var yIndex in ys) {
+        var decay = ys[yIndex];
+        if (decay != undefined && decay > 0) {
+          presenceTable[xIndex][yIndex]--;
+        }
+        else if (decay != undefined) {
+          presenceTable[xIndex][yIndex] = undefined;
+        }
+      }
+    }
+    if (CHANCE_OF_SPONTANEOUS_LIFE > Math.random()) {
+      console.log("Biogenesis!");
+      createStartingCell();
+    }
+
     if (run && cells.length > 0) {
       window.setTimeout(oneTick, TIMEOUT);
     }
@@ -352,6 +374,7 @@
     updateDynamicStats();
   }
 
+  window.createStartingCell = createStartingCell;
   updateStaticStats();
   oneTick();
 </script>
