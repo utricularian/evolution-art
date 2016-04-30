@@ -1,0 +1,162 @@
+<html>
+<body>
+<div id='cellCount'>1</div>
+<br/><br/>
+<canvas id='myCanvas' width='500' height='300' style='border: 1px solid #000000;'>
+<canvas/>
+</body>
+<script type='text/javascript'>
+  var canvas = document.getElementById('myCanvas');
+  var context = canvas.getContext('2d');
+
+  window.stop = false;
+
+  var WIDTH_MAX = 500;
+  var HEIGHT_MAX = 300;
+  var CHANCE_OF_MUTATION = 0.01;
+  var CHANCE_OF_BABY = 0.75;
+  var LIFE = 5;
+
+  var globalPixel = context.createImageData(1, 1);
+  var data = globalPixel.data;
+  data[3] = 256;
+
+  function drawDeadCell(cell) { 
+    data[0] = cell.red;
+    data[1] = cell.green;
+    data[2] = cell.blue;
+    data[3] = 256;
+
+    context.putImageData(globalPixel, cell.x, cell.y);
+  }
+
+  function drawLivingCell(cell) {
+    if (cell.life % 2 == 0) {
+      data[0] = data[1] = data[2] = 0;
+      data[3] = 256;
+    }
+    else {
+      data[0] = data[1] = data[2] = 256;
+      data[3] = 0;
+    }
+
+    context.putImageData(globalPixel, cell.x, cell.y);
+  }
+
+  var cells = [{
+      red: 128,
+      green: 128,
+      blue: 128,
+      x: 250,
+      y: 150,
+      life: LIFE 
+  }];
+  var presenceTable = [];
+  
+  function addToPresenceTable(cell) {
+    var row = presenceTable[cell.x];
+    if (row === undefined) {
+      presenceTable[cell.x] = [];
+    } 
+    presenceTable[cell.x][cell.y] = cell;
+  }
+
+  function removeFromPresenceTable(cell) {
+    presenceTable[cell.x][cell.y] = undefined;
+  }
+
+  function isNothingInPresenceTable(x, y) {
+    return presenceTable[x] === undefined || presenceTable[x][y] === undefined;
+  }
+
+  addToPresenceTable(cells[0]);
+
+  function cloneColorWithPossibilityOfMutation(colorValue) { 
+    if (CHANCE_OF_MUTATION > Math.random()) {
+      return Math.floor(Math.random() * 1000000 % 128);
+    }
+    else {
+      return colorValue;
+    }
+  }
+
+  function havingBabyAt(x, y) {
+    return x > 0 && x < WIDTH_MAX && 
+           y > 0 && y < HEIGHT_MAX && 
+           isNothingInPresenceTable(x, y) &&
+           (cells.length == 0 || CHANCE_OF_BABY > Math.random());
+  }
+
+  function makeBabyAt(cell, x, y) {
+    var baby = { 
+      red: cloneColorWithPossibilityOfMutation(cell.red),
+      green: cloneColorWithPossibilityOfMutation(cell.green),
+      blue: cloneColorWithPossibilityOfMutation(cell.blue),
+      x: x,
+      y: y,
+      life: cell.life 
+    };
+    //console.log("BABY", baby);
+    cells.push(baby);
+    addToPresenceTable(baby);
+  }
+
+  function makeBabies(cell) {
+    if (havingBabyAt(cell.x + 1, cell.y)) {
+      makeBabyAt(cell, cell.x + 1, cell.y);
+    }
+    if (havingBabyAt(cell.x - 1, cell.y)) {
+      makeBabyAt(cell, cell.x - 1, cell.y);
+    }
+    if (havingBabyAt(cell.x, cell.y + 1)) {
+      makeBabyAt(cell, cell.x, cell.y + 1);
+    }
+    if (havingBabyAt(cell.x, cell.y - 1)) {
+      makeBabyAt(cell, cell.x, cell.y - 1);
+    }
+  }
+
+  function killCell(cell) {
+    drawDeadCell(cell);
+    cells.shift();
+  }
+
+  function blinkCell(cell) {
+    drawLivingCell(cell);
+    cell.life--;
+  }
+
+  function oneTick() {
+    var cellCount = document.getElementById('cellCount');
+    cellCount.innerHTML = cells.length;
+    console.log('Managing ' + cells.length + ' cells.');
+    
+    for (var i in cells) {
+      if (window.stop == true) {
+        console.log('Found hard stop');
+        return;
+      }
+      var cell = cells[i];
+      //console.log("Ticking over ", cell);
+
+      if (cell.life > 0) {
+        blinkCell(cell);
+      }
+      else {
+        killCell(cell);
+        makeBabies(cell);
+      }
+    }
+
+    if (cells.length > 0) {
+      window.setTimeout(oneTick, 1000);
+    }
+    else {
+      console.log('Permadeath');
+    }
+  }
+
+  oneTick();
+</script>
+</script>
+</html>
