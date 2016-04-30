@@ -1,6 +1,6 @@
 <html>
 <body>
-<canvas id='myCanvas' width='500' height='300' style='border: 1px solid #000000;'>
+<canvas id='myCanvas' width='900' height='500' style='border: 1px solid #000000;'>
 </canvas>
 <br/><br/>
 <div>Number of cells rendered: <span id='totalCellCount'>1</span></div>
@@ -28,10 +28,10 @@
     return Math.floor(Math.random() * 1000000 % 128);
   };
 
-  var WIDTH_MAX = 500;
-  var HEIGHT_MAX = 300;
+  var WIDTH_MAX = 900;
+  var HEIGHT_MAX = 500;
   var CHANCE_OF_MUTATION = 0.01;
-  var CHANCE_OF_BABY = 0.5;
+  var CHANCE_OF_BABY = 0.6;
   var LIFE = 1;
   var TIMEOUT = 0;
   var START_X = 250;
