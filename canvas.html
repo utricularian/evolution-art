@@ -1,9 +1,9 @@
 <html>
 <body>
-<div id='cellCount'>1</div>
-<br/><br/>
 <canvas id='myCanvas' width='500' height='300' style='border: 1px solid #000000;'>
-<canvas/>
+</canvas>
+<br/><br/>
+<div id='cellCount'>1</div>
 </body>
 <script type='text/javascript'>
   var canvas = document.getElementById('myCanvas');
@@ -14,7 +14,7 @@
   var WIDTH_MAX = 500;
   var HEIGHT_MAX = 300;
   var CHANCE_OF_MUTATION = 0.01;
-  var CHANCE_OF_BABY = 0.75;
+  var CHANCE_OF_BABY = 1.0;
   var LIFE = 5;
 
   var globalPixel = context.createImageData(1, 1);
@@ -87,6 +87,10 @@
            (cells.length == 0 || CHANCE_OF_BABY > Math.random());
   }
 
+  function generateNewLifeSpan(life) {
+    return life;
+  }
+
   function makeBabyAt(cell, x, y) {
     var baby = { 
       red: cloneColorWithPossibilityOfMutation(cell.red),
@@ -94,9 +98,8 @@
       blue: cloneColorWithPossibilityOfMutation(cell.blue),
       x: x,
       y: y,
-      life: cell.life 
+      life: generateNewLifeSpan(cell.life)
     };
-    //console.log("BABY", baby);
     cells.push(baby);
     addToPresenceTable(baby);
   }
@@ -137,7 +140,6 @@
         return;
       }
       var cell = cells[i];
-      //console.log("Ticking over ", cell);
 
       if (cell.life > 0) {
         blinkCell(cell);
@@ -149,10 +151,11 @@
     }
 
     if (cells.length > 0) {
-      window.setTimeout(oneTick, 1000);
+      window.setTimeout(oneTick, 500);
     }
     else {
       console.log('Permadeath');
+      cellCount.innerHTML = '0 - Permadeath';
     }
   }
 
