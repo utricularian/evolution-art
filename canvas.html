@@ -17,9 +17,9 @@
 
   var WIDTH_MAX = 500;
   var HEIGHT_MAX = 300;
-  var CHANCE_OF_MUTATION = 0.01;
-  var CHANCE_OF_BABY = 1.0;
-  var LIFE = 2;
+  var CHANCE_OF_MUTATION = 0.1;
+  var CHANCE_OF_BABY = 1.5;
+  var LIFE = 5;
   var TIMEOUT = 50;
 
   var totalCellsCreated = 0;
@@ -66,7 +66,7 @@
     if (row === undefined) {
       presenceTable[cell.x] = [];
     } 
-    presenceTable[cell.x][cell.y] = true;
+    presenceTable[cell.x][cell.y] = cell;
   }
 
   function removeFromPresenceTable(cell) {
@@ -101,6 +101,7 @@
 
   function makeBabyAt(cell, x, y) {
     var baby = { 
+      id: totalCellsCreated,
       red: cloneColorWithPossibilityOfMutation(cell.red),
       green: cloneColorWithPossibilityOfMutation(cell.green),
       blue: cloneColorWithPossibilityOfMutation(cell.blue),
@@ -108,23 +109,31 @@
       y: y,
       life: generateNewLifeSpan(LIFE)
     };
-    cells.push(baby);
+
     addToPresenceTable(baby);
+    return baby;
   }
 
   function makeBabies(cell) {
+    var babies = [];
+    // East
     if (havingBabyAt(cell.x + 1, cell.y)) {
-      makeBabyAt(cell, cell.x + 1, cell.y);
+      babies.push(makeBabyAt(cell, cell.x + 1, cell.y));
     }
-    if (havingBabyAt(cell.x - 1, cell.y)) {
-      makeBabyAt(cell, cell.x - 1, cell.y);
-    }
-    if (havingBabyAt(cell.x, cell.y + 1)) {
-      makeBabyAt(cell, cell.x, cell.y + 1);
-    }
+    // West
+    /*if (havingBabyAt(cell.x - 1, cell.y)) {
+      babies.push(makeBabyAt(cell, cell.x - 1, cell.y));
+    }*/
+    // South
+    /*if (havingBabyAt(cell.x, cell.y + 1)) {
+      babies.push(makeBabyAt(cell, cell.x, cell.y + 1));
+    }*/
+    // North
     if (havingBabyAt(cell.x, cell.y - 1)) {
-      makeBabyAt(cell, cell.x, cell.y - 1);
+      babies.push(makeBabyAt(cell, cell.x, cell.y - 1));
     }
+
+    return babies;
   }
 
   function killCell(cell) {
@@ -152,17 +161,24 @@
 
   window.stop = function() {
     window.stop = true;
-  }
+  };
 
   window.tick = function() {
     window.stop = false;
     oneTick(false);
-  }
+  };
+
+  window.pixelAt = function(x, y) {
+    var imgd = context.getImageData(x, y, 1, 1);
+    return imgd.data;
+  };
 
   function oneTick(run) {
     if (run === undefined) {
       run = true;
     }
+
+    var newCellsForTheTick = [];
     for (var i in cells) {
       if (window.stop == true) {
         console.log('Found hard stop');
@@ -171,16 +187,18 @@
         return false;
       }
       var cell = cells[i];
-      console.log('cell.life=' + cell.life);
 
       if (cell.life > 0) {
         blinkCell(cell);
       }
       else {
         var deadCell = killCell(cell);
-        makeBabies(deadCell);
+        var newBabies = makeBabies(deadCell);
+        newCellsForTheTick.push.apply(newCellsForTheTick, newBabies);
       }
     }
+
+    cells.push.apply(cells, newCellsForTheTick);
 
     if (run && cells.length > 0) {
       window.setTimeout(oneTick, TIMEOUT);
@@ -193,6 +211,5 @@
 
   updateStaticStats();
   oneTick();
-</script>
 </script>
 </html>
