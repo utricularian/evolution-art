@@ -40,8 +40,9 @@
   var WIDTH_MAX = 900;
   var HEIGHT_MAX = 500;
   var CHANCE_OF_MUTATION = 0.01;
-  var CHANCE_OF_BABY = 0.6;
-  var LIFE = 1;
+  var CHANCE_OF_BABY = 0.7;
+  var CHANCE_OF_LIFE_MUTATION = 0.3;
+  var DEFAULT_LIFE = 35;
   var TIMEOUT = 0;
   var START_X = 250;
   var START_Y = 150;
@@ -99,7 +100,8 @@
       blue: getNewColor(),
       x: START_X,
       y: START_Y,
-      life: LIFE 
+      startingLife: DEFAULT_LIFE,
+      life: DEFAULT_LIFE 
   }];
   var presenceTable = [];
   
@@ -139,10 +141,23 @@
   }
 
   function generateNewLifeSpan(life) {
-    return LIFE;
+    if (CHANCE_OF_LIFE_MUTATION > Math.random()) {
+      if (Math.round(Math.random() * 10) % 2) {
+        return life + 1;
+      }
+      else {
+        var newLife = life - 1;
+        newLife = newLife > 0 ? newLife : 1;
+        return newLife;
+      }
+    }
+    else {
+      return life;
+    }
   }
 
   function makeBabyAt(cell, x, y) {
+    var newStartingLife = generateNewLifeSpan(cell.startingLife);
     var baby = { 
       id: totalCellsCreated,
       red: cloneColorWithPossibilityOfMutation(cell.red),
@@ -150,7 +165,8 @@
       blue: cloneColorWithPossibilityOfMutation(cell.blue),
       x: x,
       y: y,
-      life: generateNewLifeSpan(LIFE)
+      startingLife: newStartingLife,
+      life: newStartingLife
     };
 
     addToPresenceTable(baby);
@@ -212,7 +228,7 @@
   function updateStaticStats() {
     setInnerText('reproductionRate', CHANCE_OF_BABY);
     setInnerText('mutationRate', CHANCE_OF_MUTATION);
-    setInnerText('lifespan', LIFE);
+    setInnerText('lifespan', DEFAULT_LIFE);
     setInnerText('timeout', TIMEOUT);
 
     setInnerText('startingRed', START_RED);    
