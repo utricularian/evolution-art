@@ -4,6 +4,9 @@
 </canvas>
 <br/><br/>
 <div id='cellCount'>1</div>
+<div>Reproduction Rate: <span id='reproductionRate'></span></div>
+<div>Mutation Rate: <span id='mutationRate'></span></div>
+<div>Lifespan: <span id='lifespan'></span></div>
 </body>
 <script type='text/javascript'>
   var canvas = document.getElementById('myCanvas');
@@ -129,6 +132,12 @@
     cell.life--;
   }
 
+  function updateStaticStats() {
+    document.getElementById('reproductionRate').innerHTML = CHANCE_OF_BABY;
+    document.getElementById('mutationRate').innerHTML = CHANCE_OF_MUTATION;
+    document.getElementById('lifespan').innerHTML = LIFE;
+  }
+
   function oneTick() {
     var cellCount = document.getElementById('cellCount');
     cellCount.innerHTML = cells.length;
@@ -159,6 +168,7 @@
     }
   }
 
+  updateStaticStats();
   oneTick();
 </script>
 </script>
